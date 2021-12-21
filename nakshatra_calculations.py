@@ -123,8 +123,6 @@ def calc_nakshatra_tithi(time,filename="nakshatra_at_test_time.pdf",tz_str="Asia
 
     test_date_utc_time = Time(test_date_utc.strftime(fmt),format="isot",scale="utc")
 
-    print(test_date_utc_time)
-
     moon_ra = (get_moon(test_date_utc_time)).ra.deg
     sun_ra = (get_sun(test_date_utc_time)).ra.deg
     moon_dec =  (get_moon(test_date_utc_time)).dec.deg
@@ -190,20 +188,19 @@ def calc_nakshatra_tithi(time,filename="nakshatra_at_test_time.pdf",tz_str="Asia
             else:
                 ax.text(rashi_text_theta,0.625,rashi_names[coord_id],rotation=rashi_text_theta*180/np.pi, ha="center", va="center",alpha=0.3)
     
-    ################  rahu ketu pos  #####################
-    
-    test_date_later_dt = TimeDelta(1,format="sec")
+    ################  rahu ketu pos  #####################       
+        
+    known_eclipse_time = Time("2009-07-22T02:36:25",format="isot",scale="utc") ### This eclipse happend when moon was in Ketu's postion
+    moon_ra_at_known_eclipse = (get_moon(known_eclipse_time)).ra.deg
+    moon_dec_at_known_eclipse = (get_moon(known_eclipse_time)).dec.deg
 
-    test_date_utc_time_later = test_date_utc_time + test_date_later_dt
+    moon_beta_known_eclipse, moon_lambda_known_eclipse = get_lat_lon(moon_ra_at_known_eclipse,moon_dec_at_known_eclipse,inclination)
 
-    moon_ra_later = (get_moon(test_date_utc_time_later)).ra.deg
-    moon_dec_later =  (get_moon(test_date_utc_time_later)).dec.deg
 
-    moon_beta_later, moon_lambda_later = get_lat_lon(moon_ra_later,moon_dec_later,inclination)
+    rahu_lambda, ketu_lambda = calc_rahu_ketu_pos(known_eclipse_time,test_date_utc_time,moon_lambda_known_eclipse)
 
-    rahu_lambda, ketu_lambda = calc_rahu_ketu_pos(moon_lambda,moon_beta,moon_lambda_later,moon_beta_later)
-    print(rahu_lambda,ketu_lambda)
-    ax.plot(np.deg2rad(rahu_lambda),1.8,"bo")
+    plot_rahu([np.deg2rad(rahu_lambda),1.8],5,fig,ax)
+    plot_ketu([np.deg2rad(ketu_lambda),1.8],5,fig,ax)
 
     ################legend for grahas#####################
   
@@ -213,11 +210,20 @@ def calc_nakshatra_tithi(time,filename="nakshatra_at_test_time.pdf",tz_str="Asia
     sun_label_pos = inv.transform((790,395))
     moon_legend_pos = inv.transform((750,350))
     moon_label_pos = inv.transform((790,345))
+    rahu_legend_pos = inv.transform((750,300))
+    rahu_label_pos = inv.transform((790,295))
+    ketu_legend_pos = inv.transform((750,250))
+    ketu_label_pos = inv.transform((790,245))
 
     plot_sun(sun_legend_pos,0.1,fig,ax)
     plt.text(sun_label_pos[0],sun_label_pos[1],"\sam{सूर्यः } ")
     plot_moon_phase(final_tithi,moon_legend_pos,0.1,fig,ax)
     plt.text(moon_label_pos[0],moon_label_pos[1],"\sam{चन्द्रः } ")
+
+    plot_rahu(rahu_legend_pos,10,fig,ax)
+    plt.text(rahu_label_pos[0],rahu_label_pos[1],"\sam{राहुः} ")
+    plot_ketu(ketu_legend_pos,10,fig,ax)
+    plt.text(ketu_label_pos[0],ketu_label_pos[1], "\sam{केतुः} ")
 
     ################legend for panchanga#####################
 

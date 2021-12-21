@@ -5,7 +5,6 @@ from astropy.time import Time
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 from matplotlib.collections import PatchCollection
-import matplotlib.path as mpath
 import numpy as np
 import matplotlib.cbook as cbook
 import matplotlib.transforms as transforms
@@ -123,4 +122,71 @@ def plot_inner_graha_phase(graha,angle_to_sun,drawing_origin,radius,fig,ax):
 
     return 0
 
+def plot_rahu(drawing_origin,scale,fig,ax):
+    
+    center = np.array([0,0])
+    trans = (transforms.Affine2D().scale(scale) + transforms.ScaledTranslation(drawing_origin[0],drawing_origin[1], ax.transData))
+    
+    from matplotlib.path import Path
+
+    verts = [
+    (-1, 1),    # Vert1 
+    (1., 1.),   # Vert2
+    (1., -1.),  # Pivot1
+    (0, -1.),   # Vert3
+    (-1., -1.), # Pivot2 
+    (-1., 1.),
+    (-1., 1.),  
+    ]
+
+    codes = [
+        Path.MOVETO,
+        Path.LINETO,
+        Path.CURVE3,
+        Path.LINETO,
+        Path.CURVE3,
+        Path.LINETO,
+        Path.CLOSEPOLY,
+    ]
+
+    path = Path(verts, codes)
+
+    patch = mpatches.PathPatch(path, facecolor='blue',edgecolor='lightblue',lw=scale/5,transform=trans,clip_on=False)
+    ax.add_patch(patch)
+
+    return 0
+
+def plot_ketu(drawing_origin,scale,fig,ax):
+
+    center = np.array([0,0])
+    trans = (transforms.Affine2D().scale(scale) + transforms.ScaledTranslation(drawing_origin[0],drawing_origin[1], ax.transData))
+
+    from matplotlib.path import Path
+
+    verts = [
+    (-1, 1),    # Vert1 
+    (1., 1.),   # Vert2
+    (1., -1.),  # Vert3
+    (-1., -1.), # Vert4
+    (0, 0),     # Vert5 
+    (-1., 1.),  # Vert6
+    (-1., 1.),
+    ]
+
+    codes = [
+        Path.MOVETO,
+        Path.LINETO,
+        Path.LINETO,
+        Path.LINETO,
+        Path.LINETO,
+        Path.LINETO,
+        Path.CLOSEPOLY,
+    ]
+
+    path = Path(verts, codes)
+
+    patch = mpatches.PathPatch(path, facecolor='dimgrey',edgecolor='lightgrey',lw=scale/5,transform=trans,clip_on=False)
+    ax.add_patch(patch)
+
+    return 0
 
