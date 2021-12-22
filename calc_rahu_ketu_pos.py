@@ -13,14 +13,12 @@ def calc_rahu_ketu_pos(known_eclipse_time,test_date_utc_time,moon_lambda_known_e
     if (test_date_utc_time.jd > known_eclipse_time.jd):
         time_diff = ((test_date_utc_time - known_eclipse_time).value*u.d).to(u.year)
         ketu_degrees_moved = (ketu_speed*time_diff.value)%360
-        print(ketu_degrees_moved)
         ketu_lambda = moon_lambda_known_eclipse - ketu_degrees_moved
         if (ketu_lambda < 0):
             ketu_lambda = 360 - ketu_lambda
     else:
         time_diff = ((known_eclipse_time - test_date_utc_time).value*u.d).to(u.year)
         ketu_degrees_moved = (ketu_speed*time_diff.value)%360
-        print(ketu_degrees_moved)
         ketu_lambda = moon_lambda_known_eclipse + ketu_degrees_moved
         if (ketu_degrees_moved > 360):
             ketu_lambda = 360 - ketu_lambda

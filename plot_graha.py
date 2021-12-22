@@ -27,33 +27,33 @@ def plot_moon_phase(day,drawing_origin,radius,fig,ax):
     center = np.array([0,0]) 
     trans = (fig.dpi_scale_trans + transforms.ScaledTranslation(drawing_origin[0],drawing_origin[1], ax.transData))    
     if (0 < day <= 7.5):
-        circle = mpatches.Circle(center,radius,ec="k",fc="w",transform=trans,clip_on=False)
-        ellipse = mpatches.Ellipse(center,2*radius*np.sin(np.pi/2 - day*12*np.pi/180),2*radius,fc="k",ec=None,transform=trans,clip_on=False)
-        wedge = mpatches.Wedge(center,radius,90,270,fc="k",ec=None,transform=trans,clip_on=False)
+        circle = mpatches.Circle(center,radius,ec="darkslategrey",fc="w",lw=0.5,transform=trans,clip_on=False)
+        ellipse = mpatches.Ellipse(center,2*radius*np.sin(np.pi/2 - day*12*np.pi/180),2*radius,fc="darkslategrey",ec=None,transform=trans,clip_on=False)
+        wedge = mpatches.Wedge(center,radius,90,270,fc="darkslategrey",ec=None,transform=trans,clip_on=False)
         ax.add_patch(circle)
         ax.add_patch(wedge)
         ax.add_patch(ellipse)
 
     if (7.5 < day <= 15):
-        circle = mpatches.Circle(center,radius,ec="k",fc="w",transform=trans,clip_on=False)
+        circle = mpatches.Circle(center,radius,ec="darkslategrey",fc="w",lw=0.5,transform=trans,clip_on=False)
         ellipse = mpatches.Ellipse(center,2*radius*np.sin(np.pi/2 - day*12*np.pi/180),2*radius,fc="w",ec=None,transform=trans,clip_on=False)
-        wedge = mpatches.Wedge(center,radius,90,270,fc="k",ec=None,transform=trans,clip_on=False)
+        wedge = mpatches.Wedge(center,radius,90,270,fc="darkslategrey",ec=None,transform=trans,clip_on=False)
         ax.add_patch(circle)
         ax.add_patch(wedge)
         ax.add_patch(ellipse)
 
     if (15 < day <= 22.5):
-        circle = mpatches.Circle(center,radius,ec="k",fc="w",transform=trans,clip_on=False)
-        ellipse = mpatches.Ellipse(center,2*radius*np.sin(np.pi/2 - (day-15)*12*np.pi/180),2*radius,fc="w",ec=None,transform=trans,clip_on=False)
-        wedge = mpatches.Wedge(center,radius,270,90,fc="k",ec=None,transform=trans,clip_on=False)
+        circle = mpatches.Circle(center,radius,ec="darkslategrey",fc="w",lw=0.5,transform=trans,clip_on=False)
+        ellipse = mpatches.Ellipse(center,2*radius*np.sin(np.pi/2 - (day-15)*12*np.pi/180),2*radius,fc="darkslategrey",ec=None,transform=trans,clip_on=False)
+        wedge = mpatches.Wedge(center,radius,270,90,fc="darkslategrey",ec=None,transform=trans,clip_on=False)
         ax.add_patch(circle)
         ax.add_patch(wedge)
         ax.add_patch(ellipse)
 
     if (22.5 < day <= 30):
-        circle = mpatches.Circle(center,radius,ec="k",fc="w",transform=trans,clip_on=False)
-        ellipse = mpatches.Ellipse(center,2*radius*np.sin(np.pi/2 - (day-15)*12*np.pi/180),2*radius,fc="k",ec=None,transform=trans,clip_on=False)
-        wedge = mpatches.Wedge(center,radius,270,90,fc="k",ec=None,transform=trans,clip_on=False)
+        circle = mpatches.Circle(center,radius,ec="darkslategrey",fc="w",lw=0.5,transform=trans,clip_on=False)
+        ellipse = mpatches.Ellipse(center,2*radius*np.sin(np.pi/2 - (day-15)*12*np.pi/180),2*radius,fc="darkslategrey",ec=None,transform=trans,clip_on=False)
+        wedge = mpatches.Wedge(center,radius,270,90,fc="darkslategrey",ec=None,transform=trans,clip_on=False)
         ax.add_patch(circle)
         ax.add_patch(wedge)
         ax.add_patch(ellipse)
@@ -78,18 +78,18 @@ def plot_inner_graha_phase(graha,angle_to_sun,drawing_origin,radius,fig,ax):
     center = np.array([0,0])
     trans = (fig.dpi_scale_trans + transforms.ScaledTranslation(drawing_origin[0],drawing_origin[1], ax.transData))
     
-    if (graha == "Budha"):
+    if (graha == "budha"):
         bright_side_color = "green"
         dark_side_color = "darkgreen"
-    if (graha == "Shukra"):
+    elif (graha == "shukra"):
         bright_side_color = "white"
-        dark_side_color = "grey"
+        dark_side_color = "lightgrey"
     else:
         print("That is not an inner graha! Use the outer graha function to plot ",graha)
         return   
 
     if (0 < (angle_to_sun/12) <= 7.5):
-        circle = mpatches.Circle(center,radius,ec=dark_side_color,fc=bright_side_color,transform=trans,clip_on=False)
+        circle = mpatches.Circle(center,radius,ec=dark_side_color,fc=bright_side_color,lw=0.5,transform=trans,clip_on=False)
         ellipse = mpatches.Ellipse(center,2*radius*np.sin(np.pi/2 - (angle_to_sun/12)*12*np.pi/180),2*radius,fc=dark_side_color,ec=None,transform=trans,clip_on=False)
         wedge = mpatches.Wedge(center,radius,90,270,fc=dark_side_color,ec=None,transform=trans,clip_on=False)
         ax.add_patch(circle)
@@ -97,7 +97,7 @@ def plot_inner_graha_phase(graha,angle_to_sun,drawing_origin,radius,fig,ax):
         ax.add_patch(ellipse)
 
     if (7.5 < (angle_to_sun/12) <= 15):
-        circle = mpatches.Circle(center,radius,ec=dark_side_color,fc=bright_side_color,transform=trans,clip_on=False)
+        circle = mpatches.Circle(center,radius,ec=dark_side_color,fc=bright_side_color,lw=0.5,transform=trans,clip_on=False)
         ellipse = mpatches.Ellipse(center,2*radius*np.sin(np.pi/2 - (angle_to_sun/12)*12*np.pi/180),2*radius,fc=bright_side_color,ec=None,transform=trans,clip_on=False)
         wedge = mpatches.Wedge(center,radius,90,270,fc=dark_side_color,ec=None,transform=trans,clip_on=False)
         ax.add_patch(circle)
@@ -105,7 +105,7 @@ def plot_inner_graha_phase(graha,angle_to_sun,drawing_origin,radius,fig,ax):
         ax.add_patch(ellipse)
 
     if (15 < (angle_to_sun/12) <= 22.5):
-        circle = mpatches.Circle(center,radius,ec=dark_side_color,fc=bright_side_color,transform=trans,clip_on=False)
+        circle = mpatches.Circle(center,radius,ec=dark_side_color,fc=bright_side_color,lw=0.5,transform=trans,clip_on=False)
         ellipse = mpatches.Ellipse(center,2*radius*np.sin(np.pi/2 - ((angle_to_sun/12)-15)*12*np.pi/180),2*radius,fc=bright_side_color,ec=None,transform=trans,clip_on=False)
         wedge = mpatches.Wedge(center,radius,270,90,fc=dark_side_color,ec=None,transform=trans,clip_on=False)
         ax.add_patch(circle)
@@ -113,12 +113,32 @@ def plot_inner_graha_phase(graha,angle_to_sun,drawing_origin,radius,fig,ax):
         ax.add_patch(ellipse)
 
     if (22.5 < (angle_to_sun/12) <= 30):
-        circle = mpatches.Circle(center,radius,ec=dark_side_color,fc=bright_side_color,transform=trans,clip_on=False)
+        circle = mpatches.Circle(center,radius,ec=dark_side_color,fc=bright_side_color,lw=0.5,transform=trans,clip_on=False)
         ellipse = mpatches.Ellipse(center,2*radius*np.sin(np.pi/2 - ((angle_to_sun/12)-15)*12*np.pi/180),2*radius,fc=dark_side_color,ec=None,transform=trans,clip_on=False)
         wedge = mpatches.Wedge(center,radius,270,90,fc=dark_side_color,ec=None,transform=trans,clip_on=False)
         ax.add_patch(circle)
         ax.add_patch(wedge)
         ax.add_patch(ellipse)
+
+    return 0
+
+def plot_outer_graha(graha,drawing_origin,radius,fig,ax):
+    
+    center = np.array([0,0])
+    trans = (fig.dpi_scale_trans + transforms.ScaledTranslation(drawing_origin[0],drawing_origin[1], ax.transData))
+    
+    if (graha == "mangala"):
+        mcolor = "red"
+    elif (graha == "guru"):
+        mcolor = "yellow"
+    elif (graha == "shani"):
+        mcolor = "black"
+    else:
+        print("That is not an outer graha! Use the inner graha function to plot",graha)
+        return
+
+    circle = mpatches.Circle(center,radius,ec="w",fc=mcolor,lw=0.5,transform=trans,clip_on=False)
+    ax.add_patch(circle)
 
     return 0
 
@@ -151,7 +171,7 @@ def plot_rahu(drawing_origin,scale,fig,ax):
 
     path = Path(verts, codes)
 
-    patch = mpatches.PathPatch(path, facecolor='blue',edgecolor='lightblue',lw=scale/5,transform=trans,clip_on=False)
+    patch = mpatches.PathPatch(path, facecolor='blue',edgecolor='lightblue',lw=0.5*scale/5,transform=trans,clip_on=False)
     ax.add_patch(patch)
 
     return 0
@@ -185,7 +205,7 @@ def plot_ketu(drawing_origin,scale,fig,ax):
 
     path = Path(verts, codes)
 
-    patch = mpatches.PathPatch(path, facecolor='dimgrey',edgecolor='lightgrey',lw=scale/5,transform=trans,clip_on=False)
+    patch = mpatches.PathPatch(path, facecolor='dimgrey',edgecolor='lightgrey',lw=0.5*scale/5,transform=trans,clip_on=False)
     ax.add_patch(patch)
 
     return 0
