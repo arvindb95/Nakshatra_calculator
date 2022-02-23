@@ -5,13 +5,12 @@
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from astropy.coordinates import Angle, get_sun, get_body
-from datetime import datetime
-from geopy.geocoders import Nominatim
+from astropy.coordinates import get_body
+from datetime import datetime,timezone
 import pytz
-from astropy.time import Time, TimeDelta
+from tzlocal import get_localzone_name
+from astropy.time import Time
 from astropy.table import Table
-import matplotlib.patches as mpatches
 
 from plot_graha import *
 from calc_rahu_ketu_pos import *
@@ -323,7 +322,12 @@ def calc_nakshatra_tithi(time,filename="nakshatra_at_test_time.pdf",tz_str="Asia
     
     return 0
 
-tz_str = "Asia/Calcutta"
-date_str = "1947-08-15T00:00:00"
+#local_tz = "US/Central" #"Asia/Calcutta"
+#date_str = "1947-08-15T00:00:00"
 
-calc_nakshatra_tithi(date_str,tz_str=tz_str)
+now = datetime.now()
+date_str = now.strftime("%Y-%m-%dT%H:%M:%S")
+
+local_tz = get_localzone_name()
+
+calc_nakshatra_tithi(date_str,tz_str=local_tz)
