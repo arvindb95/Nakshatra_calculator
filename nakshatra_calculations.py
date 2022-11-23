@@ -5,12 +5,12 @@
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from astropy.coordinates import get_body
-from datetime import datetime,timezone
-import pytz
-from tzlocal import get_localzone_name
+from astropy.coordinates import get_body, EarthLocation
 from astropy.time import Time
 from astropy.table import Table
+from datetime import datetime,timezone
+import pytz
+from timezonefinder import TimezoneFinder
 
 from plot_graha import *
 from calc_rahu_ketu_pos import *
@@ -44,45 +44,47 @@ plt.style.use('dark_background')
 
 ##########################################
 
-def get_lat_lon(ra,dec,inclination):
-    """
-    Convert (ra,dec) equatorial coordinates of an object to (lat,lon) ecliptic coordinates
-    
-    Inputs :
-    ra = right ascension of object in deg
-    dec = declination of object in deg
-    inclination = inclination of ecliptic to the celectial equator in deg
 
-    Outputs :
-    lat = ecliptic latitude in deg
-    lon = ecliptic longtude in deg
-    """
-    ra = np.deg2rad(ra)
-    dec = np.deg2rad(dec)
-    inclination = np.deg2rad(inclination)
+## ----- Function no longer required as AstroPy does this calculation for us. ----- ##
 
-    beta_coord = np.arcsin(np.sin(dec)*np.cos(inclination) - np.cos(dec)*np.sin(inclination)*np.sin(ra))
-    lambda_coord = np.arccos(np.cos(ra)*np.cos(dec)/np.cos(beta_coord))
-    if (np.pi <= ra < 2*np.pi):
-        lambda_coord = np.pi + np.arccos(-np.cos(ra)*np.cos(dec)/np.cos(beta_coord))
-    if (np.pi/2 <= dec < 3*np.pi/2):
-        beta_coord = (np.pi/2) + np.arccos(np.sin(dec)*np.cos(inclination) - np.cos(dec)*np.sin(inclination)*np.sin(ra))
-    
-    lat = np.rad2deg(beta_coord)
-    lon = np.rad2deg(lambda_coord)
-    
-    return lat, lon
+#def get_lat_lon(ra,dec,inclination):
+#    """
+#    Convert (ra,dec) equatorial coordinates of an object to (lat,lon) ecliptic coordinates
+#    
+#    Inputs :
+#    ra = right ascension of object in deg
+#    dec = declination of object in deg
+#    inclination = inclination of ecliptic to the celectial equator in deg
+#
+#    Outputs :
+#    lat = ecliptic latitude in deg
+#    lon = ecliptic longtude in deg
+#    """
+#    ra = np.deg2rad(ra)
+#    dec = np.deg2rad(dec)
+#    inclination = np.deg2rad(inclination)
+#
+#    beta_coord = np.arcsin(np.sin(dec)*np.cos(inclination) - np.cos(dec)*np.sin(inclination)*np.sin(ra))
+#    lambda_coord = np.arccos(np.cos(ra)*np.cos(dec)/np.cos(beta_coord))
+#    if (np.pi <= ra < 2*np.pi):
+#        lambda_coord = np.pi + np.arccos(-np.cos(ra)*np.cos(dec)/np.cos(beta_coord))
+#    if (np.pi/2 <= dec < 3*np.pi/2):
+#        beta_coord = (np.pi/2) + np.arccos(np.sin(dec)*np.cos(inclination) - np.cos(dec)*np.sin(inclination)*np.sin(ra))
+#    
+#    lat = np.rad2deg(beta_coord)
+#    lon = np.rad2deg(lambda_coord)
+#    
+#    return lat, lon
 
-def calc_nakshatra_tithi(time,filename="nakshatra_at_test_time.pdf",tz_str="Asia/Calcutta",time_format="%Y-%m-%dT%H:%M:%S",inclination=23.4,plot_other_grahas=False):
+def calc_nakshatra_tithi(location,time,time_format="%Y-%m-%d %H:%M:%S",filename="nakshatra_at_test_time.pdf"):
     """
     Calculates nakshatra and tithi at input time and makes plot of grahas
 
     Inputs :
+    location = enter address of your location. Eg: "Mumbai, India"
     time = time at which to calculate panchanga
-    filename = name of file to write the plot of position of grahas in nakshatra and rashi
-    tz_str = time zone of the location at which to calculate panchanga
     time_format = format of input time
-    inclination = inclination of ecliptic to the celectial equator in deg
+    filename = name of file to write the plot of position of grahas in nakshatra and rashi
 
     Output :
     Plot saved at filename
@@ -114,24 +116,26 @@ def calc_nakshatra_tithi(time,filename="nakshatra_at_test_time.pdf",tz_str="Asia
     ax.set_yticklabels([""])
     ax.grid(axis="x")
 
+    observing_location = EarthLocation.of_address(location)
+    tz_obj = TimezoneFinder()
+    timezone_location = tz_obj.timezone_at(lng=observing_location.lon.value,lat=observing_location.lat.value)
+    
     fmt = time_format
     date_str = time
 
-    tz = pytz.timezone(tz_str)
+    tz = pytz.timezone(timezone_location)
     test_date = datetime.strptime(date_str, fmt)
     day_of_the_week_at_t = test_date.strftime('%A')
     local_time = tz.localize(test_date,is_dst=None)
     test_date_utc = local_time.astimezone(pytz.utc)
 
-    test_date_utc_time = Time(test_date_utc.strftime(fmt),format="isot",scale="utc")
+    test_date_utc_time = Time(test_date_utc.strftime(fmt),format="iso",scale="utc")
+   
+    moon_coord = get_body("moon",test_date_utc_time)
+    sun_coord = get_body("sun",test_date_utc_time)
 
-    moon_ra = (get_body("moon",test_date_utc_time)).ra.deg
-    sun_ra = (get_body("sun",test_date_utc_time)).ra.deg
-    moon_dec =  (get_body("moon",test_date_utc_time)).dec.deg
-    sun_dec =  (get_body("sun",test_date_utc_time)).dec.deg
-
-    moon_beta, moon_lambda = get_lat_lon(moon_ra,moon_dec,inclination)
-    sun_beta, sun_lambda = get_lat_lon(sun_ra,sun_dec,inclination)
+    moon_lambda = moon_coord.geocentrictrueecliptic.lon.value
+    sun_lambda = sun_coord.geocentrictrueecliptic.lon.value
 
     each_tithi = 360/30
 
@@ -164,7 +168,7 @@ def calc_nakshatra_tithi(time,filename="nakshatra_at_test_time.pdf",tz_str="Asia
     ax.set_xticks(np.pi/180 * nakshatram_coords)
     ax.set_xticklabels(nakshatram_coord_labels,fontsize=5)
 
-    plot_moon_phase(final_tithi,np.array([np.pi/180 * moon_lambda,2.05]),0.1,fig,ax)
+    plot_moon_phase(final_tithi,np.array([np.pi/180 * moon_lambda,1.05]),0.1,fig,ax)
     plot_sun(np.array([np.pi/180 * sun_lambda,2.05]),0.1,fig,ax)
 
     #####################################
@@ -185,36 +189,28 @@ def calc_nakshatra_tithi(time,filename="nakshatra_at_test_time.pdf",tz_str="Asia
             else:
                 ax.text(rashi_text_theta,0.625,rashi_names[coord_id],rotation=rashi_text_theta*180/np.pi + 180, ha="center", va="center",alpha=0.3)
         else:
-            if ( coord < sun_lambda < coord + nakshatram_extent):
+            if ( coord < sun_lambda < coord + rashi_extent):
                 ax.text(rashi_text_theta,0.625,rashi_names[coord_id],rotation=rashi_text_theta*180/np.pi, ha="center", va="center")
             else:
                 ax.text(rashi_text_theta,0.625,rashi_names[coord_id],rotation=rashi_text_theta*180/np.pi, ha="center", va="center",alpha=0.3)
     
     ################  rahu ketu pos  #####################       
         
-    known_eclipse_time = Time("2009-07-22T02:36:25",format="isot",scale="utc") ### This eclipse happend when moon was in Ketu's postion
-    moon_ra_at_known_eclipse = (get_body("moon",known_eclipse_time)).ra.deg
-    moon_dec_at_known_eclipse = (get_body("moon",known_eclipse_time)).dec.deg
-
-    moon_beta_known_eclipse, moon_lambda_known_eclipse = get_lat_lon(moon_ra_at_known_eclipse,moon_dec_at_known_eclipse,inclination)
-
-
+    known_eclipse_time = Time("2009-07-22 02:36:25",format="iso",scale="utc") ### This eclipse happend when moon was in Ketu's postion
+    #known_eclipse_time = Time("2052-03-30T18:31:53",format="isot",scale="utc") ### This eclipse happend when moon was in Ketu's postion
+    
+    moon_lambda_known_eclipse = get_body("moon",known_eclipse_time).geocentrictrueecliptic.lon.value
     rahu_lambda, ketu_lambda = calc_rahu_ketu_pos(known_eclipse_time,test_date_utc_time,moon_lambda_known_eclipse)
 
     plot_rahu([np.deg2rad(rahu_lambda),1.9],5,fig,ax)
     plot_ketu([np.deg2rad(ketu_lambda),1.9],5,fig,ax)
 
-    ################plot other grahas#####################
+    ################ plot other grahas #####################
 
     ### Inner grahas ###
-    mercury_ra = (get_body("mercury",test_date_utc_time)).ra.deg
-    mercury_dec = (get_body("mercury",test_date_utc_time)).dec.deg
-
-    venus_ra =  (get_body("venus",test_date_utc_time)).ra.deg
-    venus_dec =  (get_body("venus",test_date_utc_time)).dec.deg
-
-    mercury_beta, mercury_lambda = get_lat_lon(mercury_ra,mercury_dec,inclination)
-    venus_beta, venus_lambda = get_lat_lon(venus_ra,venus_dec,inclination)
+   
+    mercury_lambda = get_body("mercury",test_date_utc_time).geocentrictrueecliptic.lon.value
+    venus_lambda = get_body("venus",test_date_utc_time).geocentrictrueecliptic.lon.value
 
     if (sun_lambda > mercury_lambda):
         mercury_angle_to_sun = 360 - (sun_lambda - mercury_lambda)
@@ -231,25 +227,27 @@ def calc_nakshatra_tithi(time,filename="nakshatra_at_test_time.pdf",tz_str="Asia
 
     ### Outer grahas ###
 
-    mars_ra = (get_body("mars",test_date_utc_time)).ra.deg
-    mars_dec = (get_body("mars",test_date_utc_time)).dec.deg
-    
-    jupiter_ra =  (get_body("jupiter",test_date_utc_time)).ra.deg
-    jupiter_dec =  (get_body("jupiter",test_date_utc_time)).dec.deg
-
-    saturn_ra =  (get_body("saturn",test_date_utc_time)).ra.deg
-    saturn_dec =  (get_body("saturn",test_date_utc_time)).dec.deg
-
-
-    mars_beta, mars_lambda = get_lat_lon(mars_ra,mars_dec,inclination)
-    jupiter_beta, jupiter_lambda = get_lat_lon(jupiter_ra,jupiter_dec,inclination)
-    saturn_beta, saturn_lambda = get_lat_lon(saturn_ra,saturn_dec,inclination)
+    mars_lambda = get_body("mars",test_date_utc_time).geocentrictrueecliptic.lon.value
+    jupiter_lambda = get_body("jupiter",test_date_utc_time).geocentrictrueecliptic.lon.value
+    saturn_lambda = get_body("saturn",test_date_utc_time).geocentrictrueecliptic.lon.value
 
     plot_outer_graha("mangala",[np.deg2rad(mars_lambda),1.9],0.05,fig,ax)
     plot_outer_graha("guru",[np.deg2rad(jupiter_lambda),1.9],0.05,fig,ax)
     plot_outer_graha("shani",[np.deg2rad(saturn_lambda),1.9],0.05,fig,ax)
 
-    ################legend for grahas#####################
+    ##  rahu and ketu  ##
+
+    known_eclipse_time = Time("2009-07-22 02:36:25",format="iso",scale="utc") ### This eclipse happend when moon was in Ketu's postion
+    #known_eclipse_time = Time("2052-03-30T18:31:53",format="isot",scale="utc") ### This eclipse happend when moon was in Ketu's postion
+
+    moon_lambda_known_eclipse = get_body("moon",known_eclipse_time).geocentrictrueecliptic.lon.value
+    rahu_lambda, ketu_lambda = calc_rahu_ketu_pos(known_eclipse_time,test_date_utc_time,moon_lambda_known_eclipse)
+
+    plot_rahu([np.deg2rad(rahu_lambda),1.9],5,fig,ax)
+    plot_ketu([np.deg2rad(ketu_lambda),1.9],5,fig,ax)
+
+
+    ################ legend for grahas #####################
   
     inv = ax.transData.inverted()
     
@@ -293,11 +291,11 @@ def calc_nakshatra_tithi(time,filename="nakshatra_at_test_time.pdf",tz_str="Asia
     plot_ketu(ketu_legend_pos,5,fig,ax)
     plt.text(ketu_label_pos[0],ketu_label_pos[1], "\sam{केतुः} ")
 
-    ################legend for panchanga#####################
+    ################ legend for panchanga #####################
 
-    plt.text(inv.transform((-200,500))[0],inv.transform((-200,400))[1],tz_str)
-    plt.text(inv.transform((-200,470))[0],inv.transform((-200,370))[1],date_str.split("T")[0])
-    plt.text(inv.transform((-200,440))[0],inv.transform((-200,340))[1],date_str.split("T")[1])
+    plt.text(inv.transform((-200,500))[0],inv.transform((-200,400))[1],location)
+    plt.text(inv.transform((-200,470))[0],inv.transform((-200,370))[1],date_str.split(" ")[0])
+    plt.text(inv.transform((-200,440))[0],inv.transform((-200,340))[1],date_str.split(" ")[1])
 
     plt.text(inv.transform((-150,340))[0],inv.transform((-150,340))[1],"\sam{पञ्चाङ्ग }",bbox=dict(facecolor='none', edgecolor='white'))
     
@@ -322,12 +320,7 @@ def calc_nakshatra_tithi(time,filename="nakshatra_at_test_time.pdf",tz_str="Asia
     
     return 0
 
-#local_tz = "US/Central" #"Asia/Calcutta"
-#date_str = "1947-08-15T00:00:00"
+location = "Ayodhya, India"
+date_str = "2020-08-05 12:30:00"
 
-now = datetime.now()
-date_str = now.strftime("%Y-%m-%dT%H:%M:%S")
-
-local_tz = get_localzone_name()
-
-calc_nakshatra_tithi(date_str,tz_str=local_tz)
+calc_nakshatra_tithi(location,date_str,filename="nakshatra_at_test_time.png")
