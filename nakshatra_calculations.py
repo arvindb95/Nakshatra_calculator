@@ -44,38 +44,6 @@ plt.style.use('dark_background')
 
 ##########################################
 
-
-## ----- Function no longer required as AstroPy does this calculation for us. ----- ##
-
-#def get_lat_lon(ra,dec,inclination):
-#    """
-#    Convert (ra,dec) equatorial coordinates of an object to (lat,lon) ecliptic coordinates
-#    
-#    Inputs :
-#    ra = right ascension of object in deg
-#    dec = declination of object in deg
-#    inclination = inclination of ecliptic to the celectial equator in deg
-#
-#    Outputs :
-#    lat = ecliptic latitude in deg
-#    lon = ecliptic longtude in deg
-#    """
-#    ra = np.deg2rad(ra)
-#    dec = np.deg2rad(dec)
-#    inclination = np.deg2rad(inclination)
-#
-#    beta_coord = np.arcsin(np.sin(dec)*np.cos(inclination) - np.cos(dec)*np.sin(inclination)*np.sin(ra))
-#    lambda_coord = np.arccos(np.cos(ra)*np.cos(dec)/np.cos(beta_coord))
-#    if (np.pi <= ra < 2*np.pi):
-#        lambda_coord = np.pi + np.arccos(-np.cos(ra)*np.cos(dec)/np.cos(beta_coord))
-#    if (np.pi/2 <= dec < 3*np.pi/2):
-#        beta_coord = (np.pi/2) + np.arccos(np.sin(dec)*np.cos(inclination) - np.cos(dec)*np.sin(inclination)*np.sin(ra))
-#    
-#    lat = np.rad2deg(beta_coord)
-#    lon = np.rad2deg(lambda_coord)
-#    
-#    return lat, lon
-
 def calc_nakshatra_tithi(location,time,time_format="%Y-%m-%d %H:%M:%S",filename="nakshatra_at_test_time.pdf"):
     """
     Calculates nakshatra and tithi at input time and makes plot of grahas
