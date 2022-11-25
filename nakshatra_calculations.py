@@ -76,7 +76,11 @@ def calc_nakshatra_tithi(location,time,time_format="%Y-%m-%d %H:%M:%S",filename=
         nakshatram_coord_labels.append(r"%d$^{{\circ}}$\,%d$^{{\prime}}$"%(deg_coord,min_coord))
 
     nakshatram_coord_labels = np.array(nakshatram_coord_labels)
-
+    
+    for i in range(len(nakshatram_coords)):
+        if (nakshatram_coords[i] > 360):
+            nakshatram_coords[i] = nakshatram_coords[i] - 360
+    
     fig, ax = plt.subplots(subplot_kw={'projection': 'polar'}, figsize=(7,5))
     
     ax.set_rmax(2.5)
@@ -121,22 +125,24 @@ def calc_nakshatra_tithi(location,time,time_format="%Y-%m-%d %H:%M:%S",filename=
             nakshatram_coords[coord_id] = coord - 360
         text_theta = (2*nakshatram_coords[coord_id] + nakshatram_extent) * (np.pi/360)
         if (90 < coord < 270):
-            if ( coord < moon_lambda < coord + nakshatram_extent):
+            if (coord < moon_lambda < coord + nakshatram_extent):
                 ax.text(text_theta,1.5,nakshatram_names[coord_id],rotation= text_theta*180/np.pi + 180, ha="center", va="center")
                 final_nakshatram = nakshatram_names[coord_id]
             else:
                 ax.text(text_theta,1.5,nakshatram_names[coord_id],rotation= text_theta*180/np.pi + 180, ha="center", va="center",alpha=0.3)
         else:
-            if ( coord < moon_lambda < coord + nakshatram_extent):
+            if (coord < moon_lambda < coord + nakshatram_extent):
+                ax.text(text_theta,1.5,nakshatram_names[coord_id],rotation=text_theta*180/np.pi, ha="center", va="center")
+                final_nakshatram = nakshatram_names[coord_id]
+            elif ((moon_lambda + 360 - coord)<nakshatram_extent):
                 ax.text(text_theta,1.5,nakshatram_names[coord_id],rotation=text_theta*180/np.pi, ha="center", va="center")
                 final_nakshatram = nakshatram_names[coord_id]
             else:
-                ax.text(text_theta,1.5,nakshatram_names[coord_id],rotation=text_theta*180/np.pi, ha="center", va="center",alpha=0.3)
-            
+                ax.text(text_theta,1.5,nakshatram_names[coord_id],rotation=text_theta*180/np.pi, ha="center", va="center",alpha=0.3)     
     ax.set_xticks(np.pi/180 * nakshatram_coords)
     ax.set_xticklabels(nakshatram_coord_labels,fontsize=5)
 
-    plot_moon_phase(final_tithi,np.array([np.pi/180 * moon_lambda,1.05]),0.1,fig,ax)
+    plot_moon_phase(final_tithi,np.array([np.pi/180 * moon_lambda,1]),0.1,fig,ax)
     plot_sun(np.array([np.pi/180 * sun_lambda,2.05]),0.1,fig,ax)
 
     #####################################
@@ -158,6 +164,8 @@ def calc_nakshatra_tithi(location,time,time_format="%Y-%m-%d %H:%M:%S",filename=
                 ax.text(rashi_text_theta,0.625,rashi_names[coord_id],rotation=rashi_text_theta*180/np.pi + 180, ha="center", va="center",alpha=0.3)
         else:
             if ( coord < sun_lambda < coord + rashi_extent):
+                ax.text(rashi_text_theta,0.625,rashi_names[coord_id],rotation=rashi_text_theta*180/np.pi, ha="center", va="center")
+            elif ((sun_lambda + 360 - coord) < rashi_extent):
                 ax.text(rashi_text_theta,0.625,rashi_names[coord_id],rotation=rashi_text_theta*180/np.pi, ha="center", va="center")
             else:
                 ax.text(rashi_text_theta,0.625,rashi_names[coord_id],rotation=rashi_text_theta*180/np.pi, ha="center", va="center",alpha=0.3)
@@ -285,10 +293,11 @@ def calc_nakshatra_tithi(location,time,time_format="%Y-%m-%d %H:%M:%S",filename=
     plt.ylim(0,2.2)
 
     plt.savefig(filename)
+    plt.close()
     
     return 0
 
 location = "Ayodhya, India"
 date_str = "2020-08-05 12:30:00"
 
-calc_nakshatra_tithi(location,date_str,filename="nakshatra_at_test_time.png")
+calc_nakshatra_tithi(location,date_str,filename="nakshatra_at_test_time.pdf")
