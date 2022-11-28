@@ -170,17 +170,6 @@ def calc_nakshatra_tithi(location,time,time_format="%Y-%m-%d %H:%M:%S",filename=
             else:
                 ax.text(rashi_text_theta,0.625,rashi_names[coord_id],rotation=rashi_text_theta*180/np.pi, ha="center", va="center",alpha=0.3)
     
-    ################  rahu ketu pos  #####################       
-        
-    known_eclipse_time = Time("2009-07-22 02:36:25",format="iso",scale="utc") ### This eclipse happend when moon was in Ketu's postion
-    #known_eclipse_time = Time("2052-03-30T18:31:53",format="isot",scale="utc") ### This eclipse happend when moon was in Ketu's postion
-    
-    moon_lambda_known_eclipse = get_body("moon",known_eclipse_time).geocentrictrueecliptic.lon.value
-    rahu_lambda, ketu_lambda = calc_rahu_ketu_pos(known_eclipse_time,test_date_utc_time,moon_lambda_known_eclipse)
-
-    plot_rahu([np.deg2rad(rahu_lambda),1.9],5,fig,ax)
-    plot_ketu([np.deg2rad(ketu_lambda),1.9],5,fig,ax)
-
     ################ plot other grahas #####################
 
     ### Inner grahas ###
@@ -213,11 +202,12 @@ def calc_nakshatra_tithi(location,time,time_format="%Y-%m-%d %H:%M:%S",filename=
 
     ##  rahu and ketu  ##
 
-    known_eclipse_time = Time("2009-07-22 02:36:25",format="iso",scale="utc") ### This eclipse happend when moon was in Ketu's postion
-    #known_eclipse_time = Time("2052-03-30T18:31:53",format="isot",scale="utc") ### This eclipse happend when moon was in Ketu's postion
+    known_eclipse_time = Time("2023-04-20 04:16:49",format="iso",scale="utc") ### This eclipse happens when moon was in Rahu's postion
 
     moon_lambda_known_eclipse = get_body("moon",known_eclipse_time).geocentrictrueecliptic.lon.value
     rahu_lambda, ketu_lambda = calc_rahu_ketu_pos(known_eclipse_time,test_date_utc_time,moon_lambda_known_eclipse)
+    
+    rahu_lambda, ketu_lambda = ketu_lambda, rahu_lambda
 
     plot_rahu([np.deg2rad(rahu_lambda),1.9],5,fig,ax)
     plot_ketu([np.deg2rad(ketu_lambda),1.9],5,fig,ax)
