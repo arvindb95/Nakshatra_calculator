@@ -8,9 +8,9 @@ Calculate nakshatra at given time and location. This set of codes also calucates
 ## Dependancies
 
 ### Python Packages 
-- _Will Update_
+- The file `requirements.txt` contains the python dependencies that are required to run this code. 
 ### External Requirements
-- XeTeX - For rendering _devan&#x101;gari_ words 
+- [XeTeX](https://tug.org/xetex/) - For rendering _devan&#x101;gari_ words.  
 - [Shobhika](https://ctan.org/tex-archive/fonts/shobhika?lang=en) - A well typeset font which includes many special characters  
 
 _Edit the LaTeX preamble as you wish to change the typesetting (you might need to change the files that have the names of naks&#803;atras etc.)_
