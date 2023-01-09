@@ -63,7 +63,7 @@ def calc_nakshatra_tithi(location,time,time_format="%Y-%m-%d %H:%M:%S",filename=
     nakshatram_extent = 360/27 ## deg
     pAdam_extent = nakshatram_extent/4 ## deg
 
-    start_coord = 23 + 46/60
+    start_coord = 23 + 47/60 + 14.1/3600 ## Ref Indian Astronomy : An Introduction - S Balachandra Rao - Pg 35  
     nakshatram_coords = np.linspace(start_coord,start_coord+nakshatram_extent*26,27)
     nakshatram_coord_labels = []
 
