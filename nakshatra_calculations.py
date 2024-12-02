@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from astropy.coordinates import get_body, EarthLocation
 from astropy.time import Time
 from astropy.table import Table
-from datetime import datetime, timezone
+from datetime import datetime
 import pytz
 from timezonefinder import TimezoneFinder
 
@@ -58,6 +58,56 @@ def calc_nakshatra_tithi(location, time, time_format="%Y-%m-%d %H:%M:%S", filena
     Output :
     Plot saved at filename
     """
+
+    fig, ax = plt.subplots(subplot_kw={'projection': 'polar'}, figsize=(7, 5))
+
+    ax.set_rmax(2.5)
+    ax.set_yticks([1])
+    ax.set_yticklabels([""])
+    ax.grid(axis="x")
+
+    observing_location = EarthLocation.of_address(location)
+    tz_obj = TimezoneFinder()
+    timezone_location = tz_obj.timezone_at(
+        lng=observing_location.lon.value, lat=observing_location.lat.value)
+
+    fmt = time_format
+    date_str = time
+
+    tz = pytz.timezone(timezone_location)
+    test_date = datetime.strptime(date_str, fmt)
+
+    local_time = tz.localize(test_date, is_dst=None)
+    test_date_utc = local_time.astimezone(pytz.utc)
+
+    test_date_utc_time = Time(
+        test_date_utc.strftime(fmt), format="iso", scale="utc")
+
+    print("Time in UTC : ", test_date_utc_time)
+
+    moon_coord = get_body("moon", test_date_utc_time)
+    sun_coord = get_body("sun", test_date_utc_time)
+
+    moon_lambda = moon_coord.geocentrictrueecliptic.lon.value
+    sun_lambda = sun_coord.geocentrictrueecliptic.lon.value
+
+    ### -------- Thithi -------- ###
+
+    each_tithi = 360/30
+
+    if (sun_lambda > moon_lambda):
+        tithi_theta = 360 - (sun_lambda - moon_lambda)
+    else:
+        tithi_theta = (moon_lambda - sun_lambda)
+
+    final_tithi = tithi_theta/each_tithi
+
+    ### -------- Vaara -------- ###
+
+    day_of_the_week_at_t = test_date.strftime('%A')
+
+    ### -------- Nakshatram -------- ###
+
     naksh_names_tab = Table.read('nakshatram_names.tex', format="latex")
     nakshatram_names = naksh_names_tab['names'].data
 
@@ -85,46 +135,6 @@ def calc_nakshatra_tithi(location, time, time_format="%Y-%m-%d %H:%M:%S", filena
         if (nakshatram_coords[i] > 360):
             nakshatram_coords[i] = nakshatram_coords[i] - 360
 
-    fig, ax = plt.subplots(subplot_kw={'projection': 'polar'}, figsize=(7, 5))
-
-    ax.set_rmax(2.5)
-    ax.set_yticks([1])
-    ax.set_yticklabels([""])
-    ax.grid(axis="x")
-
-    observing_location = EarthLocation.of_address(location)
-    tz_obj = TimezoneFinder()
-    timezone_location = tz_obj.timezone_at(
-        lng=observing_location.lon.value, lat=observing_location.lat.value)
-
-    fmt = time_format
-    date_str = time
-
-    tz = pytz.timezone(timezone_location)
-    test_date = datetime.strptime(date_str, fmt)
-    day_of_the_week_at_t = test_date.strftime('%A')
-    local_time = tz.localize(test_date, is_dst=None)
-    test_date_utc = local_time.astimezone(pytz.utc)
-
-    test_date_utc_time = Time(
-        test_date_utc.strftime(fmt), format="iso", scale="utc")
-
-    print("Time in UTC : ", test_date_utc_time)
-
-    moon_coord = get_body("moon", test_date_utc_time)
-    sun_coord = get_body("sun", test_date_utc_time)
-
-    moon_lambda = moon_coord.geocentrictrueecliptic.lon.value
-    sun_lambda = sun_coord.geocentrictrueecliptic.lon.value
-
-    each_tithi = 360/30
-
-    if (sun_lambda > moon_lambda):
-        d_theta = 360 - (sun_lambda - moon_lambda)
-    else:
-        d_theta = (moon_lambda - sun_lambda)
-
-    final_tithi = d_theta/each_tithi
     final_nakshatram = ""
 
     for coord_id, coord in enumerate(nakshatram_coords):
@@ -155,6 +165,26 @@ def calc_nakshatra_tithi(location, time, time_format="%Y-%m-%d %H:%M:%S", filena
                         rotation=text_theta*180/np.pi, ha="center", va="center", alpha=0.3)
     ax.set_xticks(np.pi/180 * nakshatram_coords)
     ax.set_xticklabels(nakshatram_coord_labels, fontsize=5)
+
+    ### -------- Yoga --------###
+    yoga_names_tab = Table.read('yoga_names.tex', format="latex")
+    yoga_names = yoga_names_tab['names'].data
+
+    each_yoga = nakshatram_extent
+
+    add_theta = sun_lambda + moon_lambda
+
+    if (add_theta > 360):
+        yoga_theta = add_theta - 360
+    else:
+        yoga_theta = add_theta
+
+    final_yoga_id = ((yoga_theta - 2*start_coord)/each_yoga)
+
+    final_yoga = yoga_names[int(final_yoga_id)]
+
+
+# Plot sun and moon
 
     plot_moon_phase(final_tithi, np.array(
         [np.pi/180 * moon_lambda, 1]), 0.1, fig, ax)
@@ -291,11 +321,12 @@ def calc_nakshatra_tithi(location, time, time_format="%Y-%m-%d %H:%M:%S", filena
     ################ legend for panchanga #####################
 
     plt.text(inv.transform((-200, 500))[0],
-             inv.transform((-200, 400))[1], location)
+             inv.transform((-200, 400))[1], '\sam{'+location+'}')
+
     plt.text(inv.transform((-200, 470))
-             [0], inv.transform((-200, 370))[1], date_str.split(" ")[0])
+             [0], inv.transform((-200, 370))[1], '\sam{'+date_str.split(" ")[0]+'}')
     plt.text(inv.transform((-200, 440))
-             [0], inv.transform((-200, 340))[1], date_str.split(" ")[1])
+             [0], inv.transform((-200, 340))[1], '\sam{'+date_str.split(" ")[1]+'}')
 
     plt.text(inv.transform((-150, 340))[0], inv.transform((-150, 340))[
              1], "\sam{पञ्चाङ्ग }", bbox=dict(facecolor='none', edgecolor='white'))
@@ -317,6 +348,9 @@ def calc_nakshatra_tithi(location, time, time_format="%Y-%m-%d %H:%M:%S", filena
     plt.text(inv.transform((-200, 250))
              [0], inv.transform((-200, 250))[1], final_nakshatram)
 
+    plt.text(inv.transform((-200, 220))
+             [0], inv.transform((-200, 220))[1], final_yoga)
+
     plt.title(r'\sam{ॐ }', fontsize=20)
     plt.ylim(0, 2.2)
 
@@ -333,6 +367,6 @@ def calc_nakshatra_tithi(location, time, time_format="%Y-%m-%d %H:%M:%S", filena
 
 
 location = "Bengaluru, India"
-date_str = "2024-12-02 13:19:00"
+date_str = "2024-12-02 15:30:00"
 
 calc_nakshatra_tithi(location, date_str, filename="nakshatra_at_test_time.pdf")
