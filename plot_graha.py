@@ -69,7 +69,7 @@ def plot_sun(drawing_origin,radius,fig,ax):
     ax.add_patch(circle)
 
     for theta in np.arange(0,2*np.pi,np.pi/6):
-        triangle = mpatches.RegularPolygon([1.2*radius*np.cos(theta),1.2*radius*np.sin(theta)],3,0.2*radius,ec="yellow",fc="orange",orientation=theta+np.pi/6,transform=trans,clip_on=False)
+        triangle = mpatches.RegularPolygon([1.2*radius*np.cos(theta),1.2*radius*np.sin(theta)],3,radius=0.2*radius,ec="yellow",fc="orange",orientation=theta+np.pi/6,transform=trans,clip_on=False)
         ax.add_patch(triangle)
     
     return 0
