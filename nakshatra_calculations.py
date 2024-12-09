@@ -1,7 +1,7 @@
 ########################################## ॐ  ##########################################
 
 ## Import required packages ##
-
+# type: ignore
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -37,7 +37,6 @@ params = {
     'pgf.texsystem': 'xelatex',
     'pgf.preamble': preamble,
 }
-
 mpl.rcParams.update(params)
 
 plt.style.use('dark_background')
@@ -45,7 +44,7 @@ plt.style.use('dark_background')
 ##########################################
 
 
-def calc_nakshatra_tithi(location, time, time_format="%Y-%m-%d %H:%M:%S", filename="nakshatra_at_test_time.pdf"):
+def calc_panchangam(location, time, time_format="%Y-%m-%d %H:%M:%S", filename="nakshatra_at_test_time.pdf"):
     """
     Calculates nakshatra and tithi at input time and makes plot of grahas
 
@@ -120,6 +119,29 @@ def calc_nakshatra_tithi(location, time, time_format="%Y-%m-%d %H:%M:%S", filena
         start_coord, start_coord+nakshatram_extent*26, 27)
     nakshatram_coord_labels = []
 
+    if (moon_lambda > start_coord):
+        nakshatram_id = int((moon_lambda - start_coord)/nakshatram_extent)
+    else:
+        nakshatram_id = int(
+            (360 - moon_lambda + start_coord)/nakshatram_extent)
+
+    final_nakshatram = nakshatram_names[nakshatram_id]
+
+    # padam
+
+    padam_remainder = (moon_lambda - start_coord) % nakshatram_extent
+
+    final_padam = int(padam_remainder/pAdam_extent) + 1
+
+    if (final_padam == 1):
+        final_padam_text = "\sam{१}"
+    elif (final_padam == 2):
+        final_padam_text = "\sam{२}"
+    elif (final_padam == 3):
+        final_padam_text = "\sam{३}"
+    else:
+        final_padam_text = "\sam{४}"
+
     for i in range(len(nakshatram_coords)):
         coord = nakshatram_coords[i]
         if (coord > 360):
@@ -134,8 +156,6 @@ def calc_nakshatra_tithi(location, time, time_format="%Y-%m-%d %H:%M:%S", filena
     for i in range(len(nakshatram_coords)):
         if (nakshatram_coords[i] > 360):
             nakshatram_coords[i] = nakshatram_coords[i] - 360
-
-    final_nakshatram = ""
 
     for coord_id, coord in enumerate(nakshatram_coords):
         ax.plot(np.deg2rad([coord, coord]), [1, 2.2], "grey", alpha=0.3)
@@ -332,7 +352,6 @@ def calc_nakshatra_tithi(location, time, time_format="%Y-%m-%d %H:%M:%S", filena
              1], "\sam{पञ्चाङ्ग }", bbox=dict(facecolor='none', edgecolor='white'))
 
     tithi_names_tab = Table.read('tithi_names.tex', format="latex")
-    tithi_number = tithi_names_tab['tithi'].data
     tithi_names = tithi_names_tab['tithi_names'].data
 
     plt.text(inv.transform((-200, 310))
@@ -346,7 +365,8 @@ def calc_nakshatra_tithi(location, time, time_format="%Y-%m-%d %H:%M:%S", filena
              1], vaara_names[np.where(weekday == day_of_the_week_at_t)][0])
 
     plt.text(inv.transform((-200, 250))
-             [0], inv.transform((-200, 250))[1], final_nakshatram)
+             [0], inv.transform(
+                 (-200, 250))[1], final_nakshatram+' '+final_padam_text)
 
     plt.text(inv.transform((-200, 220))
              [0], inv.transform((-200, 220))[1], final_yoga)
@@ -367,6 +387,6 @@ def calc_nakshatra_tithi(location, time, time_format="%Y-%m-%d %H:%M:%S", filena
 
 
 location = "Bengaluru, India"
-date_str = "2024-12-02 15:30:00"
+date_str = "2024-12-05 20:30:00"
 
-calc_nakshatra_tithi(location, date_str, filename="nakshatra_at_test_time.pdf")
+calc_panchangam(location, date_str, filename="nakshatra_at_test_time.pdf")
