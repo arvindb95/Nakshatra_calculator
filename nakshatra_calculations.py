@@ -245,8 +245,10 @@ def calc_panchangam(
 
     # Plot sun and moon
 
-    plot_moon_phase(final_tithi, np.array([np.pi / 180 * moon_lambda, 1]), 0.1, fig, ax)
-    plot_sun(np.array([np.pi / 180 * sun_lambda, 2.05]), 0.1, fig, ax)
+    plot_moon_phase(
+        final_tithi, np.array([np.pi / 180 * moon_lambda, 2.05]), 0.1, fig, ax
+    )
+    plot_sun(np.array([np.pi / 180 * sun_lambda, 1]), 0.1, fig, ax)
 
     #####################################
 
