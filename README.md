@@ -1,3 +1,5 @@
+# ❌ This repo is no longer under development. I have moved it to https://github.com/arvindb95/AstroPyPanchanga. Please head there for newer updates and simplified code. 
+
 # Nakshatra_calculator
 Calculate nakshatra at given time and location. This set of codes also calucates _tithi_, _v&#x101;ra_ and _naks&#803;atra_ components of the _pa&ntilde;c&#x101;&#x1E45;ga_ along with the positions of _grah&#x101;s_. Here is an example output :
 
